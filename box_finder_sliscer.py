@@ -3,7 +3,7 @@
 import cv2
 import numpy as np 
 
-# variables
+### variables
 red = (0 ,0 ,255 )
 blue = (255 ,0 ,0)
 green = (0 ,255 ,0 )
@@ -12,83 +12,48 @@ warped_h = 900
 warped_w = 900
 global detected 
 
-# the video caputre 
+### the video caputre 
 cap = cv2.VideoCapture(0)
 width = int(cap.get(3))
 height = int(cap.get(4))
 
+###############################################################
+##### writing the specific number on each cell 
+###############################################################
+
 def write_on_box(image , row , column , text):
 
-    # index = 19
-    # elipse_nums = [0 ,8 ,17 ,26 ,35 ,44 ,53 ,62 , 71 , 80]
-    # y = x = n = 0
     const = 100
-    # for n in range(9):
+    y = (row *const) + 70   # set the y position 
+    x = (column *const) + 30    # set the x position
 
-    #     # if index == 80:
-    #     #     x = 840
-    #     #     y = 
-    #     # if
-        
-    #     if elipse_nums[n] <= index <= elipse_nums[n+1] :
-    #         y += (n*const) + 70
-    #         break
-    # if 0 <= index <= 8:
-    #     diff = (index - elipse_nums[n]) 
-    # else:
-    #     diff = (index - elipse_nums[n]) - 1
-
-    # x = (diff*const) + 30
-
-    # print(" x : " + str(x) + " y : " + str(y))
-    # print("x : " + str(x) + " y : " + str(y) , " diff : " + str(diff) + " elsipse_num[n] " + str(elipse_nums[n]))
-    # cv2.circle(image , (x , y) , 3 , red , 3)
-    # print("trying to write on the image")
-
-    y = (row *const) + 70
-    x = (column *const) + 30
     cv2.putText(image , str(text) , (x , y) , cv2.FONT_HERSHEY_SIMPLEX , 2 , magenta , 3) 
     x = y = 0
 
-
-
-
     return image
 
-
+###############################################################
+##### slicing the board to 9*9 cells 
+###############################################################
 
 def slice(image):
 
-    rows = np.array_split(image , 9)
-    # # boxes = [][]
-    # boxes = np.ndarray((9 , 9) , np.int8)
+    rows = np.array_split(image , 9)    # split the image vertically
     w, h = 9, 9
     boxes = [[0 for x in range(w)] for y in range(h)] 
 
     for i in range(9):
 
-        columns = np.array_split(rows[i] , 9 , axis=1)
+        columns = np.array_split(rows[i] , 9 , axis=1)  # split the image horizantaly
         for j in range(9):
 
-            boxes[i][j] = columns[j]
+            boxes[i][j] = columns[j]    # put each cell in boxes list
 
-
-
-
-
-
-
-# #### split rows to 9 subarrays which are columns
-#     for row in rows:
-#         columns = np.array_split(row , 9 , axis=1)
-#         for column in columns:
-
-# ############ put them in boxes list to have them all
-#             boxes.append(column)
     return boxes 
-    # print("shit")
 
-
+###############################################################
+##### warp the image to classify and write on cells 
+###############################################################
 
 def warp(image , four_points):
 
@@ -96,31 +61,15 @@ def warp(image , four_points):
         points1 = np.float32(four_points)
         points2 = np.float32([[0, 0], [warped_w, 0], [warped_w, warped_h],[0, warped_h]])
 
-        #warping the image and putting text on it
+        # warping the image and putting text on it
         transformation_matrix = cv2.getPerspectiveTransform(points1, points2)
         warped_img = cv2.warpPerspective(image, transformation_matrix, (warped_w, warped_h))
-        # cv2.putText(warped_img , "respect" , (50 ,150 ) , cv2.FONT_HERSHEY_SIMPLEX , 2 , red , 3 )
 
-        # #creating the mask 
-        # mask = np.zeros(image.shape, dtype=np.uint8)
-        # roi_corners = np.int32(four_points)
-        # mask = cv2.fillConvexPoly(mask, roi_corners, (255, 255, 255))
-        # mask = cv2.bitwise_not(mask)
-
-        # #bitwise_and operation
-        # bitwise_and_img = cv2.bitwise_and(mask , image)
-
-        # # rewarped doc image
-        # transformation_matrix = cv2.getPerspectiveTransform(points2, points1)
-        # print("widht " + str(width) + "height " + str(height) )
-        # rewarped_img = cv2.warpPerspective(warped_img, transformation_matrix, (width, height))
-
-        # # bitwise or to get the final image 
-        # final_img = cv2.bitwise_or(rewarped_img , bitwise_and_img)
-        # final_img = cv2.addWeighted(bitwise_and_img , 0.5 , rewarped_img , 0.5 , 0)
-        # image = final_img
         return warped_img , points1 , points2
 
+###############################################################
+##### rewarping the image to put on the main image
+###############################################################
 
 def rewarp(image , points1 , points2 , warped_img):
 
@@ -135,15 +84,18 @@ def rewarp(image , points1 , points2 , warped_img):
 
         # rewarped doc image
         transformation_matrix = cv2.getPerspectiveTransform(points2, points1)
-        # print("widht " + str(width) + "height " + str(height) )
         rewarped_img = cv2.warpPerspective(warped_img, transformation_matrix, (width, height))
 
         # bitwise or to get the final image 
         final_img = cv2.bitwise_or(rewarped_img , bitwise_and_img)
-        # final_img = cv2.addWeighted(bitwise_and_img , 0.5 , rewarped_img , 0.5 , 0)
         image = final_img
+        
         return image
     
+###############################################################
+##### used for arraging the points 
+##### ( used for stabling the four points )
+###############################################################
 
 def rearange_points(points):
     
@@ -158,27 +110,31 @@ def rearange_points(points):
 
     return sorted_pts
 
+###############################################################
+##### function for finding the four points of square 
+###############################################################
+
 def find_four_points(image , processed_image , draw= False , circle = False):
 
-#### needed variable
+    #### needed variable
     square_points = [] # where we keep our four points of square
     final_img = None
 
-#### finding the contours 
+    #### finding the contours 
     contours, hierarchy = cv2.findContours(processed_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
     cnt = sorted(contours, key=cv2.contourArea, reverse=True)[0]
     # cv2.drawContours(image, cnt, -1, (0, 255, 255), 3)
 
-#### searching for the biggest rectangle or the square in the image
+    #### searching for the biggest rectangle or the square in the image
     epsilon = 0.1 * cv2.arcLength(cnt , True)
     approximations = cv2.approxPolyDP(cnt, epsilon, True)
     i, j = approximations[0][0] 
     if len(approximations) == 4:
 
-######## square detected
+        ######## square detected
         detected = True
 
-######## setting th opsitoins
+        ######## setting th opsitoins
         left_top = (int(approximations[0][0][0]) , int(approximations[0][0][1]))
         left_bottom = (int(approximations[1][0][0]) , int(approximations[1][0][1]))
         right_bottom = (int(approximations[2][0][0]) , int(approximations[2][0][1]))
@@ -186,7 +142,7 @@ def find_four_points(image , processed_image , draw= False , circle = False):
         square_points = [left_top , right_top , right_bottom , left_bottom]
         square_points = rearange_points(square_points)
 
-######## if drawing the four points was intended
+        ######## if drawing the four points was intended
         if draw and not circle:
 
             cv2.line(image , square_points[0] , left_bottom , red , 3) # left_top
@@ -201,17 +157,15 @@ def find_four_points(image , processed_image , draw= False , circle = False):
             cv2.circle(image , square_points[2] , 10 , green , -1)
             cv2.circle(image , square_points[3] , 10 , magenta , -1)
 
-        # arrange the points so the positions of them are correct 
-        # square_points = rearange_points(square_points)
-
-        # warping the image
-        # image = warp(image , square_points)
-
     else:
         detected = False
 
     return detected , square_points , image
 
+
+###############################################################
+##### main function 
+###############################################################
 
 if __name__ == '__main__':
 

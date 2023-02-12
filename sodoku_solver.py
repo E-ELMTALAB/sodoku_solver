@@ -1,24 +1,7 @@
 ### sodoku solver
+
 import box_finder_sliscer as box_finder
 import numpy as np
-
-
-# global board
-# board = [
-#     [7,8,0,4,0,0,1,2,0],
-#     [6,0,0,0,7,5,0,0,9],
-#     [0,0,0,6,0,1,0,7,8],
-#     [0,0,7,0,4,0,2,6,0],
-#     [0,0,1,0,5,0,9,3,0],
-#     [9,0,4,0,6,0,0,0,5],
-#     [0,7,0,3,0,0,0,1,2],
-#     [1,2,0,0,0,7,4,0,0],
-#     [0,4,9,2,0,6,0,0,7]
-# ]
-
-# def set_board(matrix):
-#     board = matrix
-
 
 def solve(bo): # this function has recursion, which its own function within itself. Every layer of function within each function, is an empty space after an empty space.
   find = find_empty(bo)
@@ -58,25 +41,13 @@ def valid(bo, num, pos): #this checks if a value entry into a space is valid by 
 
 
 def print_board(bo, image , prev_board ):
-#   for i in range(len(bo)): # for loop iterating through each row.  'i' is the row, and 'j' is each value in each row. 
-#     if i % 3 == 0 and i != 0: print("- - - - - - - - - - - -")
-    
-#     for j in range(len(bo[0])): #iterating through each column of each row.
-#       if j % 3 == 0 and j != 0: print(" | ", end="")
-        
-#       if j == 8: print(bo[i][j])
-#       else: print(bo[i][j], end=" ")
 
+    ### print on every empty cell the predicted number 
     for row in range(9):
         for column in range(9):
             if  not prev_board[row][column]:
               written_box = box_finder.write_on_box(image , row , column , bo[row][column])
 
-
-
-
-    bo = np.array(bo , np.int8)
-    print(bo)
     return image
 
 
@@ -86,9 +57,3 @@ def find_empty(bo): #this finds empty spaces.
       if bo[i][j] == 0:
         return (i, j) # row, then column of empty spaces.
   return None
-
-
-# execution
-# print_board(board)
-# print('\n\t {}\n'.format(solve(board)))
-# print_board(board)
