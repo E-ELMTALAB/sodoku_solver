@@ -1,2 +1,3 @@
-"# sodoku_solver" 
+Sodoku solver application using computer vision 
+
 
