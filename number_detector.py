@@ -1,6 +1,6 @@
 ### number detection
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # Suppress TensorFlow logging (1)
+
 import numpy as np
 from PIL import Image
 import os
@@ -8,6 +8,7 @@ import tensorflow as tf
 import cv2
 import time
 from object_detection.utils import label_map_util
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'    # Suppress TensorFlow logging (1)
 
 
 # Enable GPU dynamic memory allocation
